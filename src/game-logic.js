@@ -16,6 +16,16 @@
   const ENTRANCE_Y = 2;
   const ROUND_SATISFACTION_BONUS_MULTIPLIER = 14;
   const ROUND_VISITOR_BONUS_MULTIPLIER = 4;
+  const INITIAL_MOOD_BASE = 55;
+  const INITIAL_MOOD_VARIANCE = 18;
+  const BUILDING_MAINTENANCE_COST = 0.4;
+  const BUILDING_CLEANLINESS_BONUS = 0.06;
+  const DECOR_CLEANLINESS_BONUS = 0.03;
+  const VISITOR_CLEANLINESS_PENALTY = 0.04;
+  const FOOD_CLEANLINESS_PENALTY = 0.03;
+  const SATISFACTION_MOOD_WEIGHT = 0.55;
+  const SATISFACTION_CLEANLINESS_WEIGHT = 0.45;
+  const SATISFACTION_QUEUE_PENALTY = 0.8;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -114,9 +124,9 @@
     state.funds -= data.cost;
 
     if (type === "ride") {
-      const id = `ride-${state.nextRideId++}`;
-      tile.rideId = id;
-      state.rides[id] = { id, x, y, queue: 0, cycleTimer: 0, status: "運行中" };
+      const rideId = `ride-${state.nextRideId++}`;
+      tile.rideId = rideId;
+      state.rides[rideId] = { id: rideId, x, y, queue: 0, cycleTimer: 0, status: "運行中" };
     }
 
     return true;
@@ -241,7 +251,12 @@
     state.spawnTimer += dt;
     if (state.spawnTimer >= VISITOR_SPAWN_INTERVAL && findReachablePaths(state).length > 1) {
       state.spawnTimer = 0;
-      state.visitors.push({ x: ENTRANCE_X, y: ENTRANCE_Y, mood: clamp(55 + randomFn() * 18, 0, 100), target: null });
+      state.visitors.push({
+        x: ENTRANCE_X,
+        y: ENTRANCE_Y,
+        mood: clamp(INITIAL_MOOD_BASE + randomFn() * INITIAL_MOOD_VARIANCE, 0, 100),
+        target: null,
+      });
     }
 
     state.visitors.forEach((visitor) => {
@@ -283,15 +298,25 @@
     const buildingCount = countStructures(state, "building");
     const decorCount = countStructures(state, "decor") + countStructures(state, "tree");
     const foodCount = countStructures(state, "food");
-    state.funds -= buildingCount * 0.4;
-    state.cleanliness += buildingCount * 0.06 + decorCount * 0.03 - state.visitors.length * 0.04 - foodCount * 0.03;
+    state.funds -= buildingCount * BUILDING_MAINTENANCE_COST;
+    state.cleanliness +=
+      buildingCount * BUILDING_CLEANLINESS_BONUS +
+      decorCount * DECOR_CLEANLINESS_BONUS -
+      state.visitors.length * VISITOR_CLEANLINESS_PENALTY -
+      foodCount * FOOD_CLEANLINESS_PENALTY;
     state.cleanliness = clamp(state.cleanliness, 0, 100);
 
     const avgMood = state.visitors.length
       ? state.visitors.reduce((sum, v) => sum + v.mood, 0) / state.visitors.length
       : 62;
     state.averageQueue = Object.keys(state.rides).length ? queueTotal / Object.keys(state.rides).length : 0;
-    state.satisfaction = clamp(avgMood * 0.55 + state.cleanliness * 0.45 - state.averageQueue * 0.8, 0, 100);
+    state.satisfaction = clamp(
+      avgMood * SATISFACTION_MOOD_WEIGHT +
+      state.cleanliness * SATISFACTION_CLEANLINESS_WEIGHT -
+      state.averageQueue * SATISFACTION_QUEUE_PENALTY,
+      0,
+      100
+    );
 
     if (state.visitors.length > MAX_VISITORS) {
       state.visitors.splice(0, state.visitors.length - MAX_VISITORS);
