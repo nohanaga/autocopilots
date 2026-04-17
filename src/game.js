@@ -32,7 +32,9 @@
   const SIMULATION_TICK_DELTA = 0.35;
   const tileW = 64;
   const tileH = 32;
+  // Minimum vertical thickness so terrain still has depth when zoomed out.
   const MIN_TILE_DEPTH = 6;
+  // Base depth at 1x zoom; scales with zoom for consistent 3D feel.
   const BASE_TILE_DEPTH = 10;
   const camera = { x: canvas.width / 2, y: 80, dragging: false, dragX: 0, dragY: 0 };
   const hoveredTile = { x: -1, y: -1 };
