@@ -98,6 +98,28 @@ h1 {
   cursor: pointer;
 }
 
+.rotation-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.rotate-btn {
+  flex: 1;
+  border: 1px solid #35405d;
+  background: var(--panel-soft);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.rotate-btn:hover {
+  border-color: var(--accent);
+}
+
 .hint {
   margin-top: 10px;
   font-size: 0.82rem;

@@ -1,6 +1,6 @@
 (() => {
   const { createInitialState, placeStructure, removeStructure, simulateTick, nextRound, STRUCTURES } = window.GameLogic;
-  const { tileToScreen, screenToTile, clientToCanvasPoint } = window.IsometricUtils;
+  const { tileToScreen, screenToTile, clientToCanvasPoint, tileToScreenRotated, screenToTileRotated, tileDepthRotated } = window.IsometricUtils;
 
   const toolDefs = [
     { id: "path", name: "通路", desc: `¥${STRUCTURES.path.cost}` },
@@ -29,6 +29,9 @@
 
   let selectedTool = "path";
   let zoom = 1;
+  let rotationAngle = 0;
+  let targetRotation = 0;
+  const ROTATION_SPEED = 0.08;
   const SIMULATION_TICK_DELTA = 0.35;
   const tileW = 64;
   const tileH = 32;
@@ -61,11 +64,11 @@
   }
 
   function worldToScreen(x, y) {
-    return tileToScreen(x, y, tileW, tileH, zoom, camera.x, camera.y);
+    return tileToScreenRotated(x, y, tileW, tileH, zoom, camera.x, camera.y, rotationAngle, state.size);
   }
 
   function screenToWorld(sx, sy) {
-    return screenToTile(sx, sy, tileW, tileH, zoom, camera.x, camera.y);
+    return screenToTileRotated(sx, sy, tileW, tileH, zoom, camera.x, camera.y, rotationAngle, state.size);
   }
 
   function clientToScreen(clientX, clientY) {
@@ -210,7 +213,7 @@
 
   function drawVisitors() {
     state.visitors.forEach((v) => {
-      const { x, y } = tileToScreen(v.x, v.y);
+      const { x, y } = worldToScreen(v.x, v.y);
       ctx.fillStyle = `hsl(${Math.round(v.mood * 1.2)},75%,70%)`;
       ctx.beginPath();
       ctx.arc(x, y - 8 * zoom, 4 * zoom, 0, Math.PI * 2);
@@ -223,14 +226,24 @@
     ctx.fillStyle = "#11131b";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    const tilesToDraw = [];
     for (let y = 0; y < state.size; y += 1) {
       for (let x = 0; x < state.size; x += 1) {
-        const tile = state.tiles[y][x];
-        const p = worldToScreen(x, y);
-        drawTerrain(tile, p.x, p.y);
-        if (tile.structure) {
-          drawSprite(tile, p.x, p.y);
-        }
+        tilesToDraw.push({
+          x,
+          y,
+          depth: tileDepthRotated(x, y, rotationAngle, state.size),
+        });
+      }
+    }
+    tilesToDraw.sort((a, b) => a.depth - b.depth);
+
+    for (const t of tilesToDraw) {
+      const tile = state.tiles[t.y][t.x];
+      const p = worldToScreen(t.x, t.y);
+      drawTerrain(tile, p.x, p.y);
+      if (tile.structure) {
+        drawSprite(tile, p.x, p.y);
       }
     }
 
@@ -294,6 +307,8 @@
     if (e.key === "s" || e.key === "ArrowDown") camera.y -= step;
     if (e.key === "a" || e.key === "ArrowLeft") camera.x += step;
     if (e.key === "d" || e.key === "ArrowRight") camera.x -= step;
+    if (e.key === "q" || e.key === "Q") targetRotation -= Math.PI / 2;
+    if (e.key === "e" || e.key === "E") targetRotation += Math.PI / 2;
   });
 
   document.getElementById("nextRound").addEventListener("click", () => {
@@ -301,7 +316,21 @@
     refreshStats();
   });
 
+  document.getElementById("rotateLeft").addEventListener("click", () => {
+    targetRotation -= Math.PI / 2;
+  });
+  document.getElementById("rotateRight").addEventListener("click", () => {
+    targetRotation += Math.PI / 2;
+  });
+
   function loop() {
+    const diff = targetRotation - rotationAngle;
+    if (Math.abs(diff) > 0.001) {
+      rotationAngle += diff * ROTATION_SPEED;
+    } else {
+      rotationAngle = targetRotation;
+    }
+
     simulateTick(state, SIMULATION_TICK_DELTA);
     refreshStats();
     draw();
