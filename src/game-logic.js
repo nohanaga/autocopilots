@@ -8,6 +8,10 @@
     decor: { cost: 75 },
     building: { cost: 340 },
   };
+  const VISITOR_SPAWN_INTERVAL = 2.4;
+  const RIDE_CYCLE_DURATION = 6;
+  const RIDE_CAPACITY_PER_CYCLE = 6;
+  const MAX_VISITORS = 140;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -231,7 +235,7 @@
 
   function simulateTick(state, dt = 1, randomFn = Math.random) {
     state.spawnTimer += dt;
-    if (state.spawnTimer >= 2.4 && findReachablePaths(state).length > 1) {
+    if (state.spawnTimer >= VISITOR_SPAWN_INTERVAL && findReachablePaths(state).length > 1) {
       state.spawnTimer = 0;
       state.visitors.push({ x: 2, y: 2, mood: clamp(55 + randomFn() * 18, 0, 100), target: null });
     }
@@ -262,9 +266,9 @@
     Object.values(state.rides).forEach((ride) => {
       ride.cycleTimer += dt;
       queueTotal += ride.queue;
-      if (ride.cycleTimer >= 6) {
+      if (ride.cycleTimer >= RIDE_CYCLE_DURATION) {
         ride.cycleTimer = 0;
-        const served = Math.min(ride.queue, 6);
+        const served = Math.min(ride.queue, RIDE_CAPACITY_PER_CYCLE);
         ride.queue -= served;
         state.funds += served * 22;
         state.servedVisitors += served;
@@ -285,9 +289,8 @@
     state.averageQueue = Object.keys(state.rides).length ? queueTotal / Object.keys(state.rides).length : 0;
     state.satisfaction = clamp(avgMood * 0.55 + state.cleanliness * 0.45 - state.averageQueue * 0.8, 0, 100);
 
-    const limit = 140;
-    if (state.visitors.length > limit) {
-      state.visitors.splice(0, state.visitors.length - limit);
+    if (state.visitors.length > MAX_VISITORS) {
+      state.visitors.splice(0, state.visitors.length - MAX_VISITORS);
     }
   }
 
