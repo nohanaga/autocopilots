@@ -1,0 +1,119 @@
+:root {
+  color-scheme: dark;
+  --bg: #11131b;
+  --panel: #1a1f2d;
+  --panel-soft: #232a3b;
+  --text: #eef3ff;
+  --muted: #a9b4cf;
+  --accent: #6ad4ff;
+  --accent-2: #4ef0b5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  background: radial-gradient(circle at 20% 0%, #1f2840 0%, var(--bg) 65%);
+  color: var(--text);
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 100vh;
+}
+
+.panel {
+  padding: 18px;
+  background: linear-gradient(180deg, #1c2233 0%, #161b28 100%);
+  border-right: 1px solid #2f3650;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.subtitle {
+  margin: 4px 0 14px;
+  color: var(--muted);
+}
+
+.tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tool {
+  border: 1px solid #35405d;
+  background: var(--panel-soft);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 9px 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tool small {
+  display: block;
+  color: var(--muted);
+}
+
+.tool.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+.stats {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid #2d3550;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.stats div {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.stats span {
+  color: var(--muted);
+}
+
+.primary {
+  border: none;
+  background: linear-gradient(90deg, #4bc7ff 0%, #42f0bc 100%);
+  color: #0d1a27;
+  font-weight: 700;
+  border-radius: 8px;
+  width: 100%;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.hint {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.viewport {
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+canvas {
+  width: 100%;
+  height: 100vh;
+  display: block;
+  cursor: crosshair;
+}

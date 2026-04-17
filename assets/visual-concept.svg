@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f2840"/>
+      <stop offset="1" stop-color="#0f121a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <g transform="translate(640 360)">
+    <polygon points="0,-200 260,-80 0,40 -260,-80" fill="#2f924f"/>
+    <polygon points="0,-80 140,-20 0,40 -140,-20" fill="#949db4"/>
+    <polygon points="0,-170 50,-145 0,-120 -50,-145" fill="#f29259"/>
+    <circle cx="0" cy="-145" r="16" fill="none" stroke="#fff" stroke-width="4"/>
+    <polygon points="120,-95 160,-77 120,-60 80,-77" fill="#57b8ff"/>
+    <circle cx="-120" cy="-90" r="22" fill="#2f8f49"/>
+    <rect x="-8" y="-20" width="16" height="38" fill="#d8c8ff"/>
+  </g>
+  <text x="60" y="90" fill="#eef3ff" font-family="sans-serif" font-size="38" font-weight="700">Isometric Theme Park Visual Concept</text>
+</svg>
