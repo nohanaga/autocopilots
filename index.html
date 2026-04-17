@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Isometric Theme Park Builder</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="panel">
+        <h1>Isometric Park</h1>
+        <p class="subtitle">建設・運営シミュレーション</p>
+
+        <div class="tools" id="tools"></div>
+
+        <div class="stats">
+          <div><span>ラウンド</span><strong id="round">1</strong></div>
+          <div><span>資金</span><strong id="funds">0</strong></div>
+          <div><span>来園者</span><strong id="visitors">0</strong></div>
+          <div><span>清潔さ</span><strong id="cleanliness">0</strong></div>
+          <div><span>待ち行列</span><strong id="queue">0</strong></div>
+          <div><span>満足度</span><strong id="satisfaction">0</strong></div>
+        </div>
+
+        <button id="nextRound" class="primary">次ラウンドへ</button>
+        <p class="hint">左クリックで配置 / 撤去。右ドラッグ・WASD・ホイールで移動。</p>
+      </aside>
+
+      <main class="viewport">
+        <canvas id="parkCanvas" width="1280" height="800" aria-label="Theme park map"></canvas>
+      </main>
+    </div>
+
+    <script src="./src/game-logic.js"></script>
+    <script src="./src/game.js"></script>
+  </body>
+</html>
