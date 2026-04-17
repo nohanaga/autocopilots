@@ -12,6 +12,10 @@
   const RIDE_CYCLE_DURATION = 6;
   const RIDE_CAPACITY_PER_CYCLE = 6;
   const MAX_VISITORS = 140;
+  const ENTRANCE_X = 2;
+  const ENTRANCE_Y = 2;
+  const ROUND_SATISFACTION_BONUS_MULTIPLIER = 14;
+  const ROUND_VISITOR_BONUS_MULTIPLIER = 4;
 
   function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
@@ -47,9 +51,9 @@
       averageQueue: 0,
     };
 
-    placeStructure(state, 2, 2, "path");
-    placeStructure(state, 3, 2, "path");
-    placeStructure(state, 4, 2, "path");
+    placeStructure(state, ENTRANCE_X, ENTRANCE_Y, "path");
+    placeStructure(state, ENTRANCE_X + 1, ENTRANCE_Y, "path");
+    placeStructure(state, ENTRANCE_X + 2, ENTRANCE_Y, "path");
 
     return state;
   }
@@ -139,7 +143,7 @@
 
   function findReachablePaths(state) {
     const visited = new Set();
-    const queue = [[2, 2]];
+    const queue = [[ENTRANCE_X, ENTRANCE_Y]];
 
     while (queue.length) {
       const [x, y] = queue.shift();
@@ -237,7 +241,7 @@
     state.spawnTimer += dt;
     if (state.spawnTimer >= VISITOR_SPAWN_INTERVAL && findReachablePaths(state).length > 1) {
       state.spawnTimer = 0;
-      state.visitors.push({ x: 2, y: 2, mood: clamp(55 + randomFn() * 18, 0, 100), target: null });
+      state.visitors.push({ x: ENTRANCE_X, y: ENTRANCE_Y, mood: clamp(55 + randomFn() * 18, 0, 100), target: null });
     }
 
     state.visitors.forEach((visitor) => {
@@ -308,7 +312,10 @@
 
   function nextRound(state) {
     state.round += 1;
-    const growthBonus = Math.floor(state.satisfaction * 14 + state.visitors.length * 4);
+    const growthBonus = Math.floor(
+      state.satisfaction * ROUND_SATISFACTION_BONUS_MULTIPLIER +
+      state.visitors.length * ROUND_VISITOR_BONUS_MULTIPLIER
+    );
     state.funds += growthBonus;
     state.cleanliness = clamp(state.cleanliness + 5, 0, 100);
   }

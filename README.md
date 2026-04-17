@@ -13,5 +13,5 @@
 ### テスト
 
 ```bash
-node --test /home/runner/work/autocopilots/autocopilots/tests/game-logic.test.js
+node --test tests/game-logic.test.js
 ```
