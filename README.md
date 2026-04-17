@@ -13,5 +13,5 @@
 ### テスト
 
 ```bash
-node --test tests/game-logic.test.js
+node --test tests/*.test.js
 ```
