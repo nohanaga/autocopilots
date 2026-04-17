@@ -8,6 +8,7 @@
   function screenToTile(sx, sy, tileW, tileH, zoom, cameraX, cameraY) {
     const x = (sx - cameraX) / zoom;
     const y = (sy - cameraY) / zoom;
+    // Slight epsilon avoids floating-point boundary drift that can shift exact tile centers by -1.
     const tx = Math.floor((x / (tileW * 0.5) + y / (tileH * 0.5)) / 2 + 1e-6);
     const ty = Math.floor((y / (tileH * 0.5) - x / (tileW * 0.5)) / 2 + 1e-6);
     return { x: tx, y: ty };

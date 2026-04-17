@@ -32,6 +32,8 @@
   const SIMULATION_TICK_DELTA = 0.35;
   const tileW = 64;
   const tileH = 32;
+  const MIN_TILE_DEPTH = 6;
+  const BASE_TILE_DEPTH = 10;
   const camera = { x: canvas.width / 2, y: 80, dragging: false, dragX: 0, dragY: 0 };
   const hoveredTile = { x: -1, y: -1 };
 
@@ -166,7 +168,7 @@
   }
 
   function drawTerrain(tile, sx, sy) {
-    const depth = Math.max(6, 10 * zoom);
+    const depth = Math.max(MIN_TILE_DEPTH, BASE_TILE_DEPTH * zoom);
     if (tile.terrain === "water") {
       drawExtrudedDiamond(sx, sy, "#2f5ea0", "#203e6a", "#254976", depth, "#8ebdff44");
       ctx.strokeStyle = "#7ad1ff77";
