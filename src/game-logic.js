@@ -126,7 +126,7 @@
     if (type === "ride") {
       const rideId = `ride-${state.nextRideId++}`;
       tile.rideId = rideId;
-      state.rides[rideId] = { id: rideId, x, y, queue: 0, cycleTimer: 0, status: "運行中" };
+      state.rides[rideId] = { id: rideId, x, y, queue: 0, cycleTimer: 0 };
     }
 
     return true;
@@ -291,7 +291,6 @@
         ride.queue -= served;
         state.funds += served * 22;
         state.servedVisitors += served;
-        ride.status = served > 0 ? "運行中" : "待機";
       }
     });
 

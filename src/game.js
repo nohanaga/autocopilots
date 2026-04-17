@@ -28,6 +28,7 @@
 
   let selectedTool = "path";
   let zoom = 1;
+  const SIMULATION_TICK_DELTA = 0.35;
   const tileW = 64;
   const tileH = 32;
   const camera = { x: canvas.width / 2, y: 80, dragging: false, dragX: 0, dragY: 0 };
@@ -224,7 +225,7 @@
   });
 
   function loop() {
-    simulateTick(state, 0.35);
+    simulateTick(state, SIMULATION_TICK_DELTA);
     refreshStats();
     draw();
     requestAnimationFrame(loop);
