@@ -1,5 +1,6 @@
 (() => {
   const { createInitialState, placeStructure, removeStructure, simulateTick, nextRound, STRUCTURES } = window.GameLogic;
+  const { tileToScreen, screenToTile, clientToCanvasPoint } = window.IsometricUtils;
 
   const toolDefs = [
     { id: "path", name: "通路", desc: `¥${STRUCTURES.path.cost}` },
@@ -32,6 +33,7 @@
   const tileW = 64;
   const tileH = 32;
   const camera = { x: canvas.width / 2, y: 80, dragging: false, dragX: 0, dragY: 0 };
+  const hoveredTile = { x: -1, y: -1 };
 
   function refreshStats() {
     stats.round.textContent = String(state.round);
@@ -56,18 +58,17 @@
     });
   }
 
-  function tileToScreen(x, y) {
-    const sx = ((x - y) * tileW * 0.5) * zoom + camera.x;
-    const sy = ((x + y) * tileH * 0.5) * zoom + camera.y;
-    return { x: sx, y: sy };
+  function worldToScreen(x, y) {
+    return tileToScreen(x, y, tileW, tileH, zoom, camera.x, camera.y);
   }
 
-  function screenToTile(sx, sy) {
-    const x = (sx - camera.x) / zoom;
-    const y = (sy - camera.y) / zoom;
-    const tx = Math.floor((x / (tileW * 0.5) + y / (tileH * 0.5)) / 2);
-    const ty = Math.floor((y / (tileH * 0.5) - x / (tileW * 0.5)) / 2);
-    return { x: tx, y: ty };
+  function screenToWorld(sx, sy) {
+    return screenToTile(sx, sy, tileW, tileH, zoom, camera.x, camera.y);
+  }
+
+  function clientToScreen(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return clientToCanvasPoint(clientX, clientY, rect, canvas.width, canvas.height);
   }
 
   function drawDiamond(x, y, fill, stroke = "#00000020") {
@@ -80,6 +81,45 @@
     ctx.fillStyle = fill;
     ctx.fill();
     ctx.strokeStyle = stroke;
+    ctx.stroke();
+  }
+
+  function drawExtrudedDiamond(x, y, topFill, sideLeft, sideRight, depth, stroke = "#00000020") {
+    const halfW = tileW * 0.5 * zoom;
+    const halfH = tileH * 0.5 * zoom;
+    const rightX = x + halfW;
+    const leftX = x - halfW;
+    const bottomY = y + halfH;
+    const downY = bottomY + depth;
+
+    ctx.beginPath();
+    ctx.moveTo(rightX, y);
+    ctx.lineTo(x, bottomY);
+    ctx.lineTo(x, downY);
+    ctx.lineTo(rightX, y + depth);
+    ctx.closePath();
+    ctx.fillStyle = sideRight;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(leftX, y);
+    ctx.lineTo(x, bottomY);
+    ctx.lineTo(x, downY);
+    ctx.lineTo(leftX, y + depth);
+    ctx.closePath();
+    ctx.fillStyle = sideLeft;
+    ctx.fill();
+
+    drawDiamond(x, y, topFill, stroke);
+
+    ctx.strokeStyle = "#0000001f";
+    ctx.beginPath();
+    ctx.moveTo(leftX, y);
+    ctx.lineTo(leftX, y + depth);
+    ctx.moveTo(rightX, y);
+    ctx.lineTo(rightX, y + depth);
+    ctx.moveTo(x, bottomY);
+    ctx.lineTo(x, downY);
     ctx.stroke();
   }
 
@@ -126,15 +166,44 @@
   }
 
   function drawTerrain(tile, sx, sy) {
+    const depth = Math.max(6, 10 * zoom);
     if (tile.terrain === "water") {
-      drawDiamond(sx, sy, "#2f5ea0");
+      drawExtrudedDiamond(sx, sy, "#2f5ea0", "#203e6a", "#254976", depth, "#8ebdff44");
       ctx.strokeStyle = "#7ad1ff77";
       ctx.beginPath();
       ctx.arc(sx, sy, 7 * zoom, 0, Math.PI * 2);
       ctx.stroke();
       return;
     }
-    drawDiamond(sx, sy, "#2f924f");
+    drawExtrudedDiamond(sx, sy, "#2f924f", "#226a39", "#297c43", depth);
+  }
+
+  function drawHoverTile() {
+    if (
+      hoveredTile.x < 0 || hoveredTile.y < 0
+      || hoveredTile.x >= state.size || hoveredTile.y >= state.size
+    ) {
+      return;
+    }
+    const { x, y } = worldToScreen(hoveredTile.x, hoveredTile.y);
+    const halfW = tileW * 0.5 * zoom;
+    const halfH = tileH * 0.5 * zoom;
+    ctx.strokeStyle = "#7de8ff";
+    ctx.lineWidth = Math.max(1, zoom);
+    ctx.beginPath();
+    ctx.moveTo(x, y - halfH);
+    ctx.lineTo(x + halfW, y);
+    ctx.lineTo(x, y + halfH);
+    ctx.lineTo(x - halfW, y);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x - 6 * zoom, y);
+    ctx.lineTo(x + 6 * zoom, y);
+    ctx.moveTo(x, y - 6 * zoom);
+    ctx.lineTo(x, y + 6 * zoom);
+    ctx.stroke();
+    ctx.lineWidth = 1;
   }
 
   function drawVisitors() {
@@ -155,7 +224,7 @@
     for (let y = 0; y < state.size; y += 1) {
       for (let x = 0; x < state.size; x += 1) {
         const tile = state.tiles[y][x];
-        const p = tileToScreen(x, y);
+        const p = worldToScreen(x, y);
         drawTerrain(tile, p.x, p.y);
         if (tile.structure) {
           drawSprite(tile, p.x, p.y);
@@ -163,6 +232,7 @@
       }
     }
 
+    drawHoverTile();
     drawVisitors();
   }
 
@@ -185,8 +255,8 @@
       camera.dragY = e.clientY;
       return;
     }
-    const rect = canvas.getBoundingClientRect();
-    const point = screenToTile(e.clientX - rect.left, e.clientY - rect.top);
+    const mouse = clientToScreen(e.clientX, e.clientY);
+    const point = screenToWorld(mouse.x, mouse.y);
     applyTool(point.x, point.y);
   });
 
@@ -195,6 +265,11 @@
   });
 
   window.addEventListener("mousemove", (e) => {
+    const mouse = clientToScreen(e.clientX, e.clientY);
+    const tile = screenToWorld(mouse.x, mouse.y);
+    hoveredTile.x = tile.x;
+    hoveredTile.y = tile.y;
+
     if (!camera.dragging) {
       return;
     }
