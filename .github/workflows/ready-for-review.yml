@@ -23,7 +23,7 @@ jobs:
           REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          PR_NUMBER=$(gh pr list --repo "$REPO" --search "$HEAD_SHA" --state open --json number,isDraft -q '.[] | select(.isDraft == true) | .number' | head -n 1)
+          PR_NUMBER=$(gh pr list --repo "$REPO" --state open --json number,isDraft,headRefOid -q '.[] | select(.isDraft == true and .headRefOid == env.HEAD_SHA) | .number' | head -n 1)
 
           if [ -z "$PR_NUMBER" ]; then
             echo "No draft PR found for sha $HEAD_SHA"
