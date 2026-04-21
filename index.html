@@ -4,26 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Isometric Theme Park Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="app">
       <aside class="panel">
-        <h1>Isometric Park</h1>
-        <p class="subtitle">建設・運営シミュレーション</p>
+        <div class="brand">
+          <div class="brand-logo" aria-hidden="true">
+            <span class="pixel-heart"></span>
+          </div>
+          <div class="brand-text">
+            <h1>Pixel Park</h1>
+            <p class="subtitle">かわいい★テーマパーク経営</p>
+          </div>
+        </div>
 
         <div class="tools" id="tools"></div>
 
         <div class="stats">
-          <div><span>ラウンド</span><strong id="round">1</strong></div>
-          <div><span>資金</span><strong id="funds">0</strong></div>
-          <div><span>来園者</span><strong id="visitors">0</strong></div>
-          <div><span>清潔さ</span><strong id="cleanliness">0</strong></div>
-          <div><span>待ち行列</span><strong id="queue">0</strong></div>
-          <div><span>満足度</span><strong id="satisfaction">0</strong></div>
+          <div><span>🗓 ラウンド</span><strong id="round">1</strong></div>
+          <div><span>💰 資金</span><strong id="funds">0</strong></div>
+          <div><span>🧍 来園者</span><strong id="visitors">0</strong></div>
+          <div><span>✨ 清潔さ</span><strong id="cleanliness">0</strong></div>
+          <div><span>⏳ 待ち行列</span><strong id="queue">0</strong></div>
+          <div><span>💖 満足度</span><strong id="satisfaction">0</strong></div>
         </div>
 
-        <button id="nextRound" class="primary">次ラウンドへ</button>
+        <button id="nextRound" class="primary">▶ 次ラウンドへ</button>
 
         <div class="rotation-controls">
           <button id="rotateLeft" class="rotate-btn" title="左回転 (Q)">↺ Q</button>
