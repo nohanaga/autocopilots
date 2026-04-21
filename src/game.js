@@ -130,13 +130,19 @@
     ctx.stroke();
   }
 
+  // Pixel-art "px" helper: draws one pixel rectangle at integer coords
+  function px(x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(w)), Math.max(1, Math.round(h)));
+  }
+
+  // Large primes used for stable spatial hashing of tile decorations
+  // (so grass tufts/flowers appear in deterministic positions).
+  const GRASS_HASH_PRIME_X = 73856093;
+  const GRASS_HASH_PRIME_Y = 19349663;
+
   function drawSprite(tile, sx, sy) {
     const scale = zoom;
-    // Pixel-art "px" helper: draws one pixel of size `s`
-    const px = (x, y, w, h, color) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(w)), Math.max(1, Math.round(h)));
-    };
     const u = Math.max(1, Math.round(2 * scale)); // base pixel unit
 
     switch (tile.structure) {
@@ -281,7 +287,7 @@
     drawExtrudedDiamond(sx, sy, "#a9e1a4", "#4ea862", "#62bd72", depth, "#2b254566");
     // tiny grass tuft pixels (deterministic based on tile coords would be ideal,
     // but we only have screen coords here; use a stable hash via sx+sy)
-    const h = (Math.round(sx) * 73856093) ^ (Math.round(sy) * 19349663);
+    const h = (Math.round(sx) * GRASS_HASH_PRIME_X) ^ (Math.round(sy) * GRASS_HASH_PRIME_Y);
     if ((h & 7) === 0) {
       ctx.fillStyle = "#3f8a52";
       ctx.fillRect(Math.round(sx - 4 * zoom), Math.round(sy + 2 * zoom), Math.max(1, Math.round(zoom)), Math.max(1, Math.round(2 * zoom)));
